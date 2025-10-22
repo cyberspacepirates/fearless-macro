@@ -1,0 +1,6 @@
+# this is the original File
+Blox Fruit.ahk
+
+# ignores everything inside build but the Red.png file
+build/*
+!build/Red.png
