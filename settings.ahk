@@ -1,7 +1,3 @@
-#SingleInstance, Force
-SendMode Input
-SetWorkingDir, %A_ScriptDir%
-
 ; =========================
 ; Load INI (robust) + Webhook section + General
 ; =========================
