@@ -19,7 +19,7 @@ CoordMode, Mouse, Screen
 ; Hotkeys
 ; =========================
 F5:: StartMacro()
-F6:: StopMacro()
+F6:: StopMacro(true)
 F3:: ToggleAlignMode()
 
 PerformAlign()
@@ -83,9 +83,14 @@ StartMacro()
     SetTimer, MainLoopWatchdog, %WatchdogIntervalMs%
 }
 
-StopMacro()
+StopMacro(userInteracted := true)
 {
-    global MacroActive, LoopActive, CurrentStatus, Holding, TotalRuns
+    global MacroActive, LoopActive, CurrentStatus, Holding, TotalRuns, AFKModeActive, AFKModeEnabled
+    
+    ; Stop AFK mode if running
+    if (userInteracted && AFKModeActive)
+        StopAFKMode()
+    
     MacroActive := false
     LoopActive := false
     CurrentStep := 1
@@ -101,6 +106,13 @@ StopMacro()
     SetTimer, MainLoopWatchdog, Off
     ToolTip
     TotalRuns := 0    ; reset on stop
+    
+    ; Start AFK mode if user didn't interact and AFKMode is enabled
+    if (!userInteracted && AFKModeEnabled) {
+        ShowNotification("Starting AFK Mode script...")
+        StartAFKMode()
+        CurrentStatus := "AFK mode enabled!"
+    }
 }
 
 ; =========================
@@ -179,8 +191,7 @@ Step1_WaitForGreen()
                 ShowNotification("Macro stopped: 2x 10x-no-green events (webhook sent)")
                 ; reset event counter (optional)
                 WebhookNoGreenEvents := 0
-                StopMacro()
-                return
+                StopMacro(false)
             }
         }
     }
@@ -240,7 +251,7 @@ Step2_WaitForMovement()
             Holding := false
         }
 
-        ; Send english webhook; wrapper will respect rate-limit
+        ; Send webhook; wrapper will respect rate-limit
         SendDiscordWebhookRateLimited("Warning: Step 2 timed out after 20 seconds. Restarting loop.", true)
 
         CurrentStep := 1
@@ -333,7 +344,7 @@ Step4_Wait()
     ; Timing (ms)
     PressTime1 := 1000    ; 1.0s
     PressTime2 := 1600    ; 1.6s
-    TotalWait := 3000     ; insgesamt 3.0s bevor wir zurücksetzen
+    TotalWait := 3000     ; total 3.0s before we reset
 
     if (!start) {
         start := A_TickCount
@@ -347,20 +358,20 @@ Step4_Wait()
     CurrentStatus := "Step 4: Waiting... " . Round(elapsed / 1000, 1) . "s"
     GuiControl,, CurrentStatusText, %CurrentStatus%
 
-    ; erste 5 bei ~1.0s
+    ; first 5 at ~1.0s
     if (elapsed >= PressTime1 && !sentAt1) {
         if (Holding) {
             Send {LButton Up}
             Holding := false
         }
         Send, 5
-        Sleep, 20    ; kurzes Pauschen damit der Tastendruck sauber registriert wird
+        Sleep, 20    ; short pause to ensure keystroke registers cleanly
         sentAt1 := true
         if (DebugMode)
             ShowNotification("Step4: Sent first 5 (1.0s)")
     }
 
-    ; zweite 5 bei ~1.6s
+    ; second 5 at ~1.6s
     if (elapsed >= PressTime2 && !sentAt16) {
         if (Holding) {
             Send {LButton Up}
@@ -373,7 +384,7 @@ Step4_Wait()
             ShowNotification("Step4: Sent second 5 (1.6s)")
     }
 
-    ; nach TotalWait zurücksetzen und Run zählen
+    ; after TotalWait reset and count run
     if (elapsed >= TotalWait) {
         start := 0
         sentAt1 := false
@@ -391,7 +402,8 @@ Step4_Wait()
         if (TotalRuns >= MaxRuns) {
             SendDiscordWebhookRateLimited("Stopped: Out of baits. Please buy more.", true)
             ShowNotification("Stopped: Out of baits. Please buy more. (webhook sent)")
-            StopMacro()
+            
+            StopMacro(false)
             return
         }
     }
@@ -431,7 +443,7 @@ MainLoopWatchdog:
     Send {LButton Up}
     Sleep, 150
     ; try restart sequence
-    StopMacro()
+    StopMacro(false)
     Sleep, 500
     StartMacro()
     Sleep, 1000
@@ -444,7 +456,43 @@ MainLoopWatchdog:
         } catch {}
         ShowNotification("Watchdog: failed to recover - macro stopped.")
         SendDiscordWebhookRateLimited("Error: Watchdog unable to recover after " WatchdogRetries " attempts. Macro stopped.", true)
-        StopMacro()
+        StopMacro(false)
         WatchdogRetries := 0
     }
+return
+
+; =========================
+; AFK Mode - Press 1 every 2 minutes with tick variation
+; =========================
+global AFKModeActive := false
+
+StartAFKMode()
+{
+    global AFKModeActive, CurrentStatus
+    AFKModeActive := true
+    CurrentStatus := "AFK Mode: Running..."
+    GuiControl,, CurrentStatusText, %CurrentStatus%
+    ShowNotification("AFK Mode started - Press F6 to stop")
+    SendDiscordWebhook("Starting AFK Mode [ENABLED]")
+    SetTimer, AFKModeLoop, 120000
+}
+
+StopAFKMode()
+{
+    global AFKModeActive, CurrentStatus
+    AFKModeActive := false
+    CurrentStatus := "AFK Mode: Stopped"
+    GuiControl,, CurrentStatusText, %CurrentStatus%
+    SetTimer, AFKModeLoop, Off
+    ShowNotification("AFK Mode stopped")
+}
+
+AFKModeLoop:
+global AFKModeActive, DebugMode
+if (!AFKModeActive)
+{
+    return
+}
+; selects the button 1
+Send, 1
 return
