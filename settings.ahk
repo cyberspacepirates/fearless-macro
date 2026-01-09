@@ -93,6 +93,8 @@ if FileExist("rects.ini") {
         if (WatchdogMaxRetries < 0)
             WatchdogMaxRetries := 0
     }
+    IniRead, afkVal, rects.ini, General, AFKModeEnabled, 0
+    AFKModeEnabled := (afkVal = 1 ? true : false)
 } else {
     ; no INI -> defaults remain; Edit UI will show them on first open
 }

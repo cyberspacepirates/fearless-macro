@@ -78,7 +78,7 @@ OpenEditGui:
     Gui, EditGui:Add, GroupBox, x12 y40 w740 h120, General
     Gui, EditGui:Add, Text, x24 y72 w160, Max Runs (stop):
     Gui, EditGui:Add, Edit, x200 y69 w120 h24 vMaxRunsEdit, %MaxRuns%
-    ; removed long note for brevity
+    Gui, EditGui:Add, Checkbox, x24 y105 w400 h20 vAFKModeEnabled gToggleAFKMode, Enable AFK Mode after finishing script
 
     ; -------- Tab: Donate --------
     Gui, EditGui:Tab, Donate
@@ -88,7 +88,7 @@ OpenEditGui:
     Gui, EditGui:Add, DropDownList, x200 y67 w160 h100 vDonateChoice, 50 Robux|100 Robux|250 Robux|500 Robux
     Gui, EditGui:Add, Button, x380 y67 w100 h24 gDonateNow, Donate
 
-    ; klickbarer Discord-Text (öffnet den im Script verankerten DiscordLink)
+    ; clickable Discord text (opens Discord link anchored in script)
     Gui, EditGui:Add, Text, x24 y102 w120 h24 cBlue gOpenDiscord, Discord
 
     ; -------- Buttons (bottom) --------
@@ -102,6 +102,7 @@ OpenEditGui:
     GuiControl,, PingUserIDEdit, %PingUserID%
     GuiControl,, WebhookEnabled, % (WebhookEnabled ? 1 : 0)
     GuiControl,, MaxRunsEdit, %MaxRuns%
+    GuiControl,, AFKModeEnabled, % (AFKModeEnabled ? 1 : 0)
     GuiControl,, FishColorEdit, % GetHexNoPrefix(FishColor)
     GuiControl,, BlockColorEdit, % GetHexNoPrefix(BlockColor)
     GuiControl,, Variation, %Variation%
@@ -127,34 +128,34 @@ return
 ; öffnet den festen Discord-Link
 OpenDiscord:
     if (DiscordLink = "") {
-        ShowNotification("Discord-Link nicht gesetzt (im Script).")
+        ShowNotification("Discord link not set (in script).")
         return
     }
     Run, %DiscordLink%
 return
 
 DonateNow:
-    ; Stelle sicher, dass die GUI-Werte übernommen werden
+    ; Make sure GUI values are taken over
     Gui, EditGui:Submit, NoHide
 
-    ; Versuche die Auswahl direkt zu lesen
+    ; Try to read selection directly
     sel := DonateChoice
     if (sel = "") {
-        ; Fallback: explizit aus dem Control holen
+        ; Fallback: explicitly fetch from control
         GuiControlGet, sel, , DonateChoice
     }
 
     if (sel = "") {
-        sel := "50 Robux" ; Default falls wirklich leer
+        sel := "50 Robux" ; Default if really empty
     }
 
-    ; Zahl extrahieren (50/100/250/500)
+    ; Extract number (50/100/250/500)
     RegExMatch(sel, "(\d+)", m)
     amt := m1
     if (!amt)
         amt := "50"
 
-    ; entsprechende fest verankerte URL auswählen
+    ; Select corresponding anchored URL
     url := ""
     if (amt = "50")
         url := DonateURL50
@@ -166,25 +167,34 @@ DonateNow:
         url := DonateURL500
 
     if (url = "") {
-        ShowNotification("Keine Donate-URL für " amt " Robux gesetzt (im Script).")
+        ShowNotification("No Donate URL set for " amt " Robux (in script).")
         return
     }
 
-    ; {amount} ersetzen, falls vorhanden (optional)
+    ; Replace {amount} if present (optional)
     if InStr(url, "{amount}") {
         StringReplace, url, url, {amount}, %amt%, All
     }
 
-    ; Debug (optional): entferne die 2 Zeilen, wenn sie stören
-    ; ShowNotification("Auswahl: " sel " | Betrag: " amt)
+    ; Debug (optional): remove the 2 lines if they bother you
+    ; ShowNotification("Selection: " sel " | Amount: " amt)
 
     Run, %url%
-    ShowNotification("Öffne Donate-Link (" amt " Robux)...")
+    ShowNotification("Opening Donate link (" amt " Robux)...")
 return
 
 ; =========================
 ; Webhook UI callbacks
 ; =========================
+ToggleAFKMode:
+    Gui, EditGui:Submit, NoHide
+    AFKModeEnabled := (AFKModeEnabled ? true : false)
+    if (AFKModeEnabled)
+        ShowNotification("AFK Mode: Enabled after script finish")
+    else
+        ShowNotification("AFK Mode: Disabled")
+return
+
 ToggleWebhook:
     Gui, EditGui:Submit, NoHide
     WebhookURL := WebhookURLEdit
@@ -352,6 +362,9 @@ SaveRects:
         tmpMax := DefaultMaxRuns
     MaxRuns := tmpMax
     IniWrite, %MaxRuns%, rects.ini, General, MaxRuns
+    
+    afkVal := AFKModeEnabled ? 1 : 0
+    IniWrite, %afkVal%, rects.ini, General, AFKModeEnabled
 
     ShowNotification("Position & Color saved (rects.ini)!")
 return
@@ -374,6 +387,7 @@ RestoreDefaults:
     BlockColor := DefaultBlockColor
     Variation := DefaultVariation
     MaxRuns := DefaultMaxRuns
+    AFKModeEnabled := false
 
     ; Reset webhook & counters to defaults
     WebhookEnabled := false
@@ -426,18 +440,19 @@ RestoreDefaults:
         GuiControl,, PingUserIDEdit, %PingUserID%
         GuiControl,, WebhookEnabled, % (WebhookEnabled ? 1 : 0)
         GuiControl,, MaxRunsEdit, %MaxRuns%
+        GuiControl,, AFKModeEnabled, % (AFKModeEnabled ? 1 : 0)
     }
     if (BarRectShow) {
         Gui, BarOverlay:Destroy
         ShowRectangle("BarOverlay", BarRectX, BarRectY, BarRectW, BarRectH, "Red")
     }
-    if (MovementRectShow) {
-        Gui, MovementOverlay:Destroy
-        ShowRectangle("MovementOverlay", MovementRectX, MovementRectY, MovementRectW, MovementRectH, "Blue")
-    }
     if (GreenRectShow) {
         Gui, GreenOverlay:Destroy
         ShowRectangle("GreenOverlay", GreenRectX, GreenRectY, GreenRectW, GreenRectH, "Green")
     }
+    if (MovementRectShow) {
+        Gui, MovementOverlay:Destroy
+        ShowRectangle("MovementOverlay", MovementRectX, MovementRectY, MovementRectW, MovementRectH, "Blue")
+    }
     ShowNotification("Default settings saved.")
-return
+Return

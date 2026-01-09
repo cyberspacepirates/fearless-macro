@@ -59,14 +59,14 @@ NextLoopAllowed := 0
 ; new global: tracks whether LButton is currently held down
 Holding := false
 
-; === Fest verankerte Donate-URLs (keine INI) ===
-DonateURL50  := "https://www.roblox.com/game-pass/1441842598"   ; ersetze durch deine echte 50-Robux-URL
-DonateURL100 := "https://www.roblox.com/game-pass/1440190881"  ; ersetze durch deine echte 100-Robux-URL
-DonateURL250 := "https://www.roblox.com/game-pass/1440728840"  ; ersetze durch deine echte 250-Robux-URL
-DonateURL500 := "https://www.roblox.com/game-pass/1444700174"  ; ersetze durch deine echte 500-Robux-URL
+; === Fixed anchored Donate URLs (no INI) ===
+DonateURL50  := "https://www.roblox.com/game-pass/1441842598"   ; replace with your actual 50 Robux URL
+DonateURL100 := "https://www.roblox.com/game-pass/1440190881"  ; replace with your actual 100 Robux URL
+DonateURL250 := "https://www.roblox.com/game-pass/1440728840"  ; replace with your actual 250 Robux URL
+DonateURL500 := "https://www.roblox.com/game-pass/1444700174"  ; replace with your actual 500 Robux URL
 
-; Discord-Link fest im Script verankert
-DiscordLink := "https://discord.gg/rzg6wx2X7A"    ; ersetze durch deinen Discord-Link
+; Discord link anchored in script
+DiscordLink := "https://discord.gg/rzg6wx2X7A"    ; replace with your Discord link
 
 ; =========================
 ; Webhook / Counters
@@ -97,3 +97,5 @@ WatchdogLogFile := A_ScriptDir "\watchdog.log"
 ; webhook rate-limit (ms)
 LastWebhookTime := 0
 WebhookMinIntervalMs := 15000 ; 15s min between webhooks
+
+global AFKModeEnabled := false
