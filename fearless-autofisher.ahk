@@ -294,10 +294,10 @@ Step3_TrackFish()
     x2 := BarRectX + BarRectW
     y2 := BarRectY + BarRectH
     PixelSearch, FishX, FishY, %x1%, %y1%, %x2%, %y2%, %FishColor%, %Variation%, RGB Fast
-    FischGefunden := (ErrorLevel = 0)
+    FishFound := (ErrorLevel = 0)
     PixelSearch, BlockX, BlockY, %x1%, %y1%, %x2%, %y2%, %BlockColor%, %Variation%, RGB Fast
-    BlockGefunden := (ErrorLevel = 0)
-    if (FischGefunden && BlockGefunden) {
+    BlockFound := (ErrorLevel = 0)
+    if (FishFound && BlockFound) {
         if (FishX > BlockX) {
             if (!Holding)
             {
@@ -311,7 +311,7 @@ Step3_TrackFish()
                 Holding := false
             }
         }
-    } else if (FischGefunden) {
+    } else if (FishFound) {
         if (!Holding)
         {
             Send {LButton Down}
@@ -325,8 +325,8 @@ Step3_TrackFish()
         }
     }
     if (DebugMode) {
-        tooltipText := "Fish:" . (FischGefunden ? FishX : "n/a")
-                    . " | Block:" . (BlockGefunden ? BlockX : "n/a")
+        tooltipText := "Fish:" . (FishFound ? FishX : "n/a")
+                    . " | Block:" . (BlockFound ? BlockX : "n/a")
                     . " | elapsed:" . Round(elapsed/1000,1) . "s"
                     . " | Holding:" . (Holding ? "1" : "0")
         ToolTip, %tooltipText%, 10, 10
