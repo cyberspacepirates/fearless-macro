@@ -125,7 +125,7 @@ CloseEditGui:
     }
 return
 
-; öffnet den festen Discord-Link
+; Opens the fixed Discord link
 OpenDiscord:
     if (DiscordLink = "") {
         ShowNotification("Discord link not set (in script).")
