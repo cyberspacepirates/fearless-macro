@@ -15,6 +15,7 @@ CoordMode, Mouse, Screen
 #Include, settings_gui.ahk
 
 #Include, discord_webhook.ahk
+
 ; =========================
 ; Hotkeys
 ; =========================
@@ -264,24 +265,26 @@ Step2_WaitForMovement()
     return
 }
 
-
-
 Step3_TrackFish()
 {
     global BarRectX, BarRectY, BarRectW, BarRectH
     global FishColor, BlockColor, Variation
-    global DebugMode, CurrentStatus, Step3_EntryTime, CurrentStep, Holding
-    MaxDurationMs := 9000
+    global DebugMode, CurrentStatus, CurrentStep, Holding, Step3_EntryTime
+
+    ; initialize entry time for timeout handling
     if (!Step3_EntryTime)
         Step3_EntryTime := A_TickCount
+
     elapsed := A_TickCount - Step3_EntryTime
-    CurrentStatus := "Step 3: Tracking fish... (" . Round(elapsed/1000,1) . "s)"
+
+    CurrentStatus := "Step 3: Tracking fish... " . Round(elapsed / 1000, 1) . "s"
     GuiControl,, CurrentStatusText, %CurrentStatus%
-    if (elapsed >= MaxDurationMs) {
+
+    ; timeout fallback: 12 seconds (12000 ms)
+    if (elapsed >= 12000) {
         if (DebugMode)
-            ShowNotification("Step 3 -> 4: Timeout after 9s reached")
-        if (Holding)
-        {
+            ShowNotification("Step 3 -> 4: Timeout after 12s reached")
+        if (Holding) {
             Send {LButton Up}
             Holding := false
         }
@@ -289,49 +292,55 @@ Step3_TrackFish()
         CurrentStep := 4
         return
     }
+
     x1 := BarRectX
     y1 := BarRectY
     x2 := BarRectX + BarRectW
     y2 := BarRectY + BarRectH
+
     PixelSearch, FishX, FishY, %x1%, %y1%, %x2%, %y2%, %FishColor%, %Variation%, RGB Fast
     FishFound := (ErrorLevel = 0)
+
     PixelSearch, BlockX, BlockY, %x1%, %y1%, %x2%, %y2%, %BlockColor%, %Variation%, RGB Fast
     BlockFound := (ErrorLevel = 0)
+
+    ; ---------- Normal tracking logic ----------
     if (FishFound && BlockFound) {
         if (FishX > BlockX) {
-            if (!Holding)
-            {
+            if (!Holding) {
                 Send {LButton Down}
                 Holding := true
             }
         } else {
-            if (Holding)
-            {
+            if (Holding) {
                 Send {LButton Up}
                 Holding := false
             }
         }
-    } else if (FishFound) {
-        if (!Holding)
-        {
+    }
+    else if (FishFound) {
+        if (!Holding) {
             Send {LButton Down}
             Holding := true
         }
-    } else {
-        if (Holding)
-        {
+    }
+    else {
+        if (Holding) {
             Send {LButton Up}
             Holding := false
         }
     }
+
+    ; ---------- Debug ----------
     if (DebugMode) {
         tooltipText := "Fish:" . (FishFound ? FishX : "n/a")
                     . " | Block:" . (BlockFound ? BlockX : "n/a")
-                    . " | elapsed:" . Round(elapsed/1000,1) . "s"
+                    . " | Idle:" . Round((A_TickCount - Step3_LastActiveTime)/1000, 2) . "s"
                     . " | Holding:" . (Holding ? "1" : "0")
         ToolTip, %tooltipText%, 10, 10
     }
 }
+
 
 Step4_Wait()
 {
@@ -473,7 +482,7 @@ StartAFKMode()
     CurrentStatus := "AFK Mode: Running..."
     GuiControl,, CurrentStatusText, %CurrentStatus%
     ShowNotification("AFK Mode started - Press F6 to stop")
-    SendDiscordWebhook("Starting AFK Mode [ENABLED]")
+    SendDiscordWebhookRateLimited("Starting AFK Mode [ENABLED]")
     SetTimer, AFKModeLoop, 120000
 }
 
