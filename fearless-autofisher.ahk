@@ -130,9 +130,9 @@ Step1_WaitForGreen()
         firstRun := true
     }
     if (firstRun) {
-        Send, 5
+        Send, %FishrodSlot%
         Sleep, 300
-        Send, 5
+        Send, %FishrodSlot%
         firstRun := false
     }
     CurrentStatus := "Step 1: Waiting for green in green rect..."
@@ -367,30 +367,30 @@ Step4_Wait()
     CurrentStatus := "Step 4: Waiting... " . Round(elapsed / 1000, 1) . "s"
     GuiControl,, CurrentStatusText, %CurrentStatus%
 
-    ; first 5 at ~1.0s
+    ; first keystroke at ~1.0s
     if (elapsed >= PressTime1 && !sentAt1) {
         if (Holding) {
             Send {LButton Up}
             Holding := false
         }
-        Send, 5
+        Send, %FishrodSlot%
         Sleep, 20    ; short pause to ensure keystroke registers cleanly
         sentAt1 := true
         if (DebugMode)
-            ShowNotification("Step4: Sent first 5 (1.0s)")
+            ShowNotification("Step4: Sent fishrod key (1.0s)")
     }
 
-    ; second 5 at ~1.6s
+    ; second keystroke at ~1.6s
     if (elapsed >= PressTime2 && !sentAt16) {
         if (Holding) {
             Send {LButton Up}
             Holding := false
         }
-        Send, 5
+        Send, %FishrodSlot%
         Sleep, 20
         sentAt16 := true
         if (DebugMode)
-            ShowNotification("Step4: Sent second 5 (1.6s)")
+            ShowNotification("Step4: Sent fishrod key (1.6s)")
     }
 
     ; after TotalWait reset and count run

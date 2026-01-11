@@ -5,6 +5,7 @@ DefaultFishColor := 0x2A8CF0
 DefaultBlockColor := 0x909090
 DefaultVariation := 45
 DefaultMaxRuns := 100
+DefaultFishrodSlot := 5
 
 DefaultBarRectX := 520
 DefaultBarRectY := 765
@@ -45,6 +46,7 @@ GreenRectShow := false
 FishColor := DefaultFishColor
 BlockColor := DefaultBlockColor
 Variation := DefaultVariation
+FishrodSlot := DefaultFishrodSlot
 
 ; other flags / status
 MacroActive := false
