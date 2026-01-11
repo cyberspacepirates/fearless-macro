@@ -75,10 +75,13 @@ OpenEditGui:
 
     ; -------- Tab: General --------
     Gui, EditGui:Tab, General
-    Gui, EditGui:Add, GroupBox, x12 y40 w740 h120, General
+    Gui, EditGui:Add, GroupBox, x12 y40 w740 h160, General
     Gui, EditGui:Add, Text, x24 y72 w160, Max Runs (stop):
     Gui, EditGui:Add, Edit, x200 y69 w120 h24 vMaxRunsEdit, %MaxRuns%
-    Gui, EditGui:Add, Checkbox, x24 y105 w400 h20 vAFKModeEnabled gToggleAFKMode, Enable AFK Mode after finishing script
+    Gui, EditGui:Add, Text, x24 y105 w160, Fishrod Slot (1-9):
+    Gui, EditGui:Add, DropDownList, x200 y102 w120 h100 vFishrodSlotEdit gFishrodSlotChanged, 1|2|3|4|5|6|7|8|9
+    Gui, EditGui:Add, Text, x330 y105 w160 h20 vFishrodSlotLabel, Selected: %FishrodSlot%
+    Gui, EditGui:Add, Checkbox, x24 y135 w400 h20 vAFKModeEnabled gToggleAFKMode, Enable AFK Mode after finishing script
 
     ; -------- Tab: Donate --------
     Gui, EditGui:Tab, Donate
@@ -102,6 +105,8 @@ OpenEditGui:
     GuiControl,, PingUserIDEdit, %PingUserID%
     GuiControl,, WebhookEnabled, % (WebhookEnabled ? 1 : 0)
     GuiControl,, MaxRunsEdit, %MaxRuns%
+    GuiControl,, FishrodSlotEdit, %FishrodSlot%
+    GuiControl,, FishrodSlotLabel, Selected: %FishrodSlot%
     GuiControl,, AFKModeEnabled, % (AFKModeEnabled ? 1 : 0)
     GuiControl,, FishColorEdit, % GetHexNoPrefix(FishColor)
     GuiControl,, BlockColorEdit, % GetHexNoPrefix(BlockColor)
@@ -224,6 +229,18 @@ TestWebhook:
     }
     SendDiscordWebhookRateLimited("Test message from Fishing Macro. If this should ping someone, check the UserID.", true)
     ShowNotification("Test webhook sent.")
+return
+
+FishrodSlotChanged:
+    ; update variable and label when the dropdown selection changes
+    Gui, EditGui:Submit, NoHide
+    ; ensure numeric
+    if (FishrodSlotEdit != "") {
+        FishrodSlot := FishrodSlotEdit + 0
+        if (FishrodSlot < 1 || FishrodSlot > 9)
+            FishrodSlot := DefaultFishrodSlot
+        GuiControl,, FishrodSlotLabel, Selected: %FishrodSlot%
+    }
 return
 
 ; =========================
@@ -363,6 +380,14 @@ SaveRects:
     MaxRuns := tmpMax
     IniWrite, %MaxRuns%, rects.ini, General, MaxRuns
     
+    ; FishrodSlot save (validate)
+    GuiControlGet, tmpSlot, , FishrodSlotEdit
+    tmpSlot := tmpSlot + 0
+    if (tmpSlot < 1 || tmpSlot > 9)
+        tmpSlot := DefaultFishrodSlot
+    FishrodSlot := tmpSlot
+    IniWrite, %FishrodSlot%, rects.ini, General, FishrodSlot
+    
     afkVal := AFKModeEnabled ? 1 : 0
     IniWrite, %afkVal%, rects.ini, General, AFKModeEnabled
 
@@ -379,14 +404,7 @@ RestoreDefaults:
     MovementRectY := DefaultMovementRectY
     MovementRectW := DefaultMovementRectW
     MovementRectH := DefaultMovementRectH
-    GreenRectX := DefaultGreenRectX
-    GreenRectY := DefaultGreenRectY
-    GreenRectW := DefaultGreenRectW
-    GreenRectH := DefaultGreenRectH
-    FishColor := DefaultFishColor
-    BlockColor := DefaultBlockColor
-    Variation := DefaultVariation
-    MaxRuns := DefaultMaxRuns
+    FishrodSlot := DefaultFishrodSlot
     AFKModeEnabled := false
 
     ; Reset webhook & counters to defaults
@@ -405,6 +423,15 @@ RestoreDefaults:
     IniWrite, %MovementRectY%, rects.ini, Movement, Y
     IniWrite, %MovementRectW%, rects.ini, Movement, W
     IniWrite, %MovementRectH%, rects.ini, Movement, H
+    IniWrite, %GreenRectX%, rects.ini, Green, X
+    IniWrite, %GreenRectY%, rects.ini, Green, Y
+    IniWrite, %GreenRectW%, rects.ini, Green, W
+    IniWrite, %GreenRectH%, rects.ini, Green, H
+    IniWrite, % GetHexNoPrefix(FishColor), rects.ini, Colors, Fish
+    IniWrite, % GetHexNoPrefix(BlockColor), rects.ini, Colors, Block
+    IniWrite, %Variation%, rects.ini, Colors, Variation
+    IniWrite, %MaxRuns%, rects.ini, General, MaxRuns
+    IniWrite, %FishrodSlot%, rects.ini, General, FishrodSlotH
     IniWrite, %GreenRectX%, rects.ini, Green, X
     IniWrite, %GreenRectY%, rects.ini, Green, Y
     IniWrite, %GreenRectW%, rects.ini, Green, W

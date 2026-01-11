@@ -95,6 +95,12 @@ if FileExist("rects.ini") {
     }
     IniRead, afkVal, rects.ini, General, AFKModeEnabled, 0
     AFKModeEnabled := (afkVal = 1 ? true : false)
+    IniRead, tmp, rects.ini, General, FishrodSlot
+    if (tmp != "") {
+        FishrodSlot := tmp + 0
+        if (FishrodSlot < 1 || FishrodSlot > 9)
+            FishrodSlot := DefaultFishrodSlot
+    }
 } else {
     ; no INI -> defaults remain; Edit UI will show them on first open
 }
