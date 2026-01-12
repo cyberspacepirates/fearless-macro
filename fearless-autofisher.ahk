@@ -16,6 +16,8 @@ CoordMode, Mouse, Screen
 
 #Include, discord_webhook.ahk
 
+ChestColor := 0xf3be9b
+
 ; =========================
 ; Hotkeys
 ; =========================
@@ -303,6 +305,15 @@ Step3_TrackFish()
 
     PixelSearch, BlockX, BlockY, %x1%, %y1%, %x2%, %y2%, %BlockColor%, %Variation%, RGB Fast
     BlockFound := (ErrorLevel = 0)
+
+    PixelSearch, ChestX, ChestY, %x1%, %y1%, %x2%, %y2%, %ChestColor%, 20, RGB Fast
+    ChestFound := (ErrorLevel = 0)
+
+    if (ChestFound) {
+        if (DebugMode)
+            ShowNotification("Step3: CHEST DETECTED!")
+        SendDiscordWebhookRateLimited("Alert: Chest detected during fishing!", true)
+    }
 
     ; ---------- Normal tracking logic ----------
     if (FishFound && BlockFound) {

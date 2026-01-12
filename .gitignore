@@ -4,3 +4,4 @@ Blox Fruit.ahk
 # ignores everything inside build but the Red.png file
 build/*
 !build/Red.png
+test/*
