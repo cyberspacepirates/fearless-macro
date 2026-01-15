@@ -16,8 +16,6 @@ CoordMode, Mouse, Screen
 
 #Include, discord_webhook.ahk
 
-ChestColor := 0xf3be9b
-
 ; =========================
 ; Hotkeys
 ; =========================
@@ -272,6 +270,8 @@ Step3_TrackFish()
     global BarRectX, BarRectY, BarRectW, BarRectH
     global FishColor, BlockColor, Variation
     global DebugMode, CurrentStatus, CurrentStep, Holding, Step3_EntryTime
+    global ChestFound, ChestX, ChestY
+    global Chest_EntryTime
 
     ; initialize entry time for timeout handling
     if (!Step3_EntryTime)
@@ -306,41 +306,73 @@ Step3_TrackFish()
     PixelSearch, BlockX, BlockY, %x1%, %y1%, %x2%, %y2%, %BlockColor%, %Variation%, RGB Fast
     BlockFound := (ErrorLevel = 0)
 
-    PixelSearch, ChestX, ChestY, %x1%, %y1%, %x2%, %y2%, %ChestColor%, 20, RGB Fast
-    ChestFound := (ErrorLevel = 0)
 
-    if (ChestFound) {
-        if (DebugMode)
-            ShowNotification("Step3: CHEST DETECTED!")
-        SendDiscordWebhookRateLimited("Alert: Chest detected during fishing!", true)
+    if(elapsed > 1000){
+        PixelSearch, ChestX, ChestY,  %x1%, %y1%, %x2%, %y2%, 0xf9b722, 50, RGB Fast
+        ChestFound := (ErrorLevel = 0)
+
+
+        if (ChestFound && !Chest_EntryTime) {
+            if (DebugMode)
+                ShowNotification("Step3: CHEST DETECTED!")
+
+            Chest_EntryTime := A_TickCount
+            SendDiscordWebhookRateLimited("Alert: Chest detected during fishing!", true)
+        }
     }
 
     ; ---------- Normal tracking logic ----------
-    if (FishFound && BlockFound) {
-        if (FishX > BlockX) {
+    if(ChestFound){
+        if (BlockFound) {
+            if (ChestX > BlockX) {
+                if (!Holding) {
+                    Send {LButton Down}
+                    Holding := true
+                }
+            } else {
+                if (Holding) {
+                    Send {LButton Up}
+                    Holding := false
+                }
+            }
+        } else {
+            if (Holding) {
+                Send {LButton Up}
+                Holding := false
+            }else{
+                Send {LButton Down}
+                Holding := true
+            }
+        }
+    }else{
+        if (FishFound && BlockFound) {
+            if (FishX > BlockX) {
+                if (!Holding) {
+                    Send {LButton Down}
+                    Holding := true
+                }
+            } else {
+                if (Holding) {
+                    Send {LButton Up}
+                    Holding := false
+                }
+            }
+        }
+        else if (FishFound) {
             if (!Holding) {
                 Send {LButton Down}
                 Holding := true
             }
-        } else {
+        }
+        else {
             if (Holding) {
                 Send {LButton Up}
                 Holding := false
             }
         }
     }
-    else if (FishFound) {
-        if (!Holding) {
-            Send {LButton Down}
-            Holding := true
-        }
-    }
-    else {
-        if (Holding) {
-            Send {LButton Up}
-            Holding := false
-        }
-    }
+
+    ChestFound := false
 
     ; ---------- Debug ----------
     if (DebugMode) {
@@ -352,7 +384,6 @@ Step3_TrackFish()
     }
 }
 
-
 Step4_Wait()
 {
     global CurrentStatus, CurrentStep, Holding
@@ -360,6 +391,8 @@ Step4_Wait()
     static start := 0
     static sentAt1 := false
     static sentAt16 := false
+    global Chest_EntryTime
+    Chest_EntryTime := 0
 
     ; Timing (ms)
     PressTime1 := 1000    ; 1.0s
