@@ -9,7 +9,7 @@ This macro is a fishing macro for Blox Fruits, it works similar to a auto-clicke
 - [x] Functional fishing macro
 - [x] Discord WebHooks logging
 - [x] AFK Mode after the macro finishes
-- [ ] Chests (TO ADD)
+- [x] Chests (CURRENTLY IN DEVELOPMENT)
 - [ ] Fishing Rod skills (TO ADD)
 - [ ] AUTO OPENING CHESTS (TO ADD)
 
