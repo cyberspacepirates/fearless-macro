@@ -26,6 +26,12 @@ OpenEditGui:
     Gui, EditGui:Add, Text, x28 y100, Y:
     Gui, EditGui:Add, Slider, x72 y98 w260 vBarRectY Range0-%maxY% TickInterval10 gUpdateRects, %BarRectY%
     Gui, EditGui:Add, Text, x340 y98 w60 h20 vBarRectYVal, %BarRectY%
+    Gui, EditGui:Add, Text, x28 y130, W:
+    Gui, EditGui:Add, Slider, x72 y128 w260 vBarRectW Range1-2000 TickInterval10 gUpdateRects, %BarRectW%
+    Gui, EditGui:Add, Text, x340 y128 w60 h20 vBarRectWVal, %BarRectW%
+    Gui, EditGui:Add, Text, x28 y160, H:
+    Gui, EditGui:Add, Slider, x72 y158 w260 vBarRectH Range1-200 TickInterval1 gUpdateRects, %BarRectH%
+    Gui, EditGui:Add, Text, x340 y158 w60 h20 vBarRectHVal, %BarRectH%
 
     Gui, EditGui:Add, GroupBox, x392 y40 w360 h240, Movement Rect
     Gui, EditGui:Add, Text, x408 y70, X:
@@ -114,6 +120,8 @@ OpenEditGui:
     GuiControl,, VariationVal, %Variation%
     GuiControl,, BarRectXVal, %BarRectX%
     GuiControl,, BarRectYVal, %BarRectY%
+    GuiControl,, BarRectWVal, %BarRectW%
+    GuiControl,, BarRectHVal, %BarRectH%
     GuiControl,, MovementRectXVal, %MovementRectX%
     GuiControl,, MovementRectYVal, %MovementRectY%
     GuiControl,, GreenRectXVal, %GreenRectX%
@@ -326,6 +334,8 @@ UpdateRects:
         Variation := tmpV + 0
     GuiControl,, BarRectXVal, %BarRectX%
     GuiControl,, BarRectYVal, %BarRectY%
+    GuiControl,, BarRectWVal, %BarRectW%
+    GuiControl,, BarRectHVal, %BarRectH%
     GuiControl,, MovementRectXVal, %MovementRectX%
     GuiControl,, MovementRectYVal, %MovementRectY%
     GuiControl,, GreenRectXVal, %GreenRectX%
@@ -431,15 +441,7 @@ RestoreDefaults:
     IniWrite, % GetHexNoPrefix(BlockColor), rects.ini, Colors, Block
     IniWrite, %Variation%, rects.ini, Colors, Variation
     IniWrite, %MaxRuns%, rects.ini, General, MaxRuns
-    IniWrite, %FishrodSlot%, rects.ini, General, FishrodSlotH
-    IniWrite, %GreenRectX%, rects.ini, Green, X
-    IniWrite, %GreenRectY%, rects.ini, Green, Y
-    IniWrite, %GreenRectW%, rects.ini, Green, W
-    IniWrite, %GreenRectH%, rects.ini, Green, H
-    IniWrite, % GetHexNoPrefix(FishColor), rects.ini, Colors, Fish
-    IniWrite, % GetHexNoPrefix(BlockColor), rects.ini, Colors, Block
-    IniWrite, %Variation%, rects.ini, Colors, Variation
-    IniWrite, %MaxRuns%, rects.ini, General, MaxRuns
+    IniWrite, %FishrodSlot%, rects.ini, General, FishrodSlot
 
     ; Write webhook defaults to INI as well
     IniWrite, %WebhookURL%, rects.ini, Webhook, URL
@@ -449,12 +451,16 @@ RestoreDefaults:
     if WinExist("Edit") {
         GuiControl,, BarRectX, %BarRectX%
         GuiControl,, BarRectY, %BarRectY%
+        GuiControl,, BarRectW, %BarRectW%
+        GuiControl,, BarRectH, %BarRectH%
         GuiControl,, MovementRectX, %MovementRectX%
         GuiControl,, MovementRectY, %MovementRectY%
         GuiControl,, GreenRectX, %GreenRectX%
         GuiControl,, GreenRectY, %GreenRectY%
         GuiControl,, BarRectXVal, %BarRectX%
         GuiControl,, BarRectYVal, %BarRectY%
+        GuiControl,, BarRectWVal, %BarRectW%
+        GuiControl,, BarRectHVal, %BarRectH%
         GuiControl,, MovementRectXVal, %MovementRectX%
         GuiControl,, MovementRectYVal, %MovementRectY%
         GuiControl,, GreenRectXVal, %GreenRectX%
