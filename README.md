@@ -49,3 +49,9 @@ Add or remove exclussions
 ```
 
 futher information to add...
+
+### Discord
+
+Join the Official discord server from fearless9453
+
+https://discord.gg/PRDdzwCg6r

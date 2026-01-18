@@ -5,3 +5,4 @@ Blox Fruit.ahk
 build/*
 !build/Red.png
 test/*
+releases/
