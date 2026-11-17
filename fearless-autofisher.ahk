@@ -12,6 +12,8 @@ CoordMode, Mouse, Screen
 
 #Include, helpers.ahk
 
+#Include, npc.ahk
+
 #Include, settings_gui.ahk
 
 #Include, discord_webhook.ahk
@@ -22,7 +24,7 @@ CoordMode, Mouse, Screen
 F5:: StartMacro()
 F6:: StopMacro(true)
 F3:: ToggleAlignMode()
-
+F7:: AutoBuy()
 
 ; perms a shuffle so speed up Fishing
 Shuffle()
@@ -245,7 +247,7 @@ Step2_WaitForMovement()
         Sleep, 50
         Click, %FoundX%, %FoundY%
         if (WasteBaitModeEnabled) {
-            CurrentStep := 1
+            CurrentStep := 4
             Step3_EntryTime := 0
         } else {
             CurrentStep := 3
@@ -337,7 +339,6 @@ Step3_TrackFish()
                 ShowNotification("Step3: CHEST DETECTED!")
 
             Chest_EntryTime := A_TickCount
-            SendDiscordWebhookRateLimited("Alert: Chest detected during fishing!", true)
         }
     }
 
@@ -408,6 +409,7 @@ Step4_Wait()
 {
     global CurrentStatus, CurrentStep, Holding
     global TotalRuns, DebugMode, MaxRuns
+    global AutoBuyEnabled, MacroActive, LoopActive, LastMainLoopTick, WatchdogIntervalMs
     static start := 0
     static sentAt1 := false
     static sentAt16 := false
@@ -456,7 +458,7 @@ Step4_Wait()
         if (DebugMode)
             ShowNotification("Step4: Sent fishrod key (1.6s)")
     }
-
+    
     ; after TotalWait reset and count run
     if (elapsed >= TotalWait) {
         start := 0
@@ -472,13 +474,36 @@ Step4_Wait()
             ShowNotification("Webhook: " . TotalRuns . " runs completed (sent)")
         }
 
-        if (TotalRuns >= MaxRuns) {
+
+        if(TotalRuns >= MaxRuns) {
+            if (AutoBuyEnabled) {
+                ShowNotification("Out of bait. Buying more...")
+                LoopActive := false
+                SetTimer, MainLoop, Off
+                SetTimer, MainLoopWatchdog, Off
+                CurrentStatus := "Buying bait..."
+                GuiControl,, CurrentStatusText, %CurrentStatus%
+                AutoBuy()
+
+                if (MacroActive) {
+                    TotalRuns := 0
+                    CurrentStep := 1
+                    LastMainLoopTick := A_TickCount
+                    LoopActive := true
+                    CurrentStatus := "Macro running..."
+                    GuiControl,, CurrentStatusText, %CurrentStatus%
+                    SetTimer, MainLoop, 50
+                    SetTimer, MainLoopWatchdog, %WatchdogIntervalMs%
+                }
+                return
+            }
+
+            ShowNotification("Stopped: Out of baits. Please buy more.")
             SendDiscordWebhookRateLimited("Stopped: Out of baits. Please buy more.", true)
-            ShowNotification("Stopped: Out of baits. Please buy more. (webhook sent)")
-            
             StopMacro(false)
             return
         }
+        return
     }
 }
 

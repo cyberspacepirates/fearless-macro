@@ -81,7 +81,7 @@ OpenEditGui:
 
     ; -------- Tab: General --------
     Gui, EditGui:Tab, General
-    Gui, EditGui:Add, GroupBox, x12 y40 w740 h160, General
+    Gui, EditGui:Add, GroupBox, x12 y40 w740 h200, General
     Gui, EditGui:Add, Text, x24 y72 w160, Max Runs (stop):
     Gui, EditGui:Add, Edit, x200 y69 w120 h24 vMaxRunsEdit, %MaxRuns%
     Gui, EditGui:Add, Text, x24 y105 w160, Fishrod Slot (1-9):
@@ -89,6 +89,7 @@ OpenEditGui:
     Gui, EditGui:Add, Text, x330 y105 w160 h20 vFishrodSlotLabel, Selected: %FishrodSlot%
     Gui, EditGui:Add, Checkbox, x24 y135 w400 h20 vAFKModeEnabled gToggleAFKMode, Enable AFK Mode after finishing script
     Gui, EditGui:Add, Checkbox, x24 y165 w400 h20 vWasteBaitModeEnabled, Enable Waste Bait Mode
+    Gui, EditGui:Add, Checkbox, x24 y195 w400 h20 vAutoBuyEnabled, Automatically buy bait when depleted
 
     ; -------- Tab: Donate --------
     Gui, EditGui:Tab, Donate
@@ -116,6 +117,7 @@ OpenEditGui:
     GuiControl,, FishrodSlotLabel, Selected: %FishrodSlot%
     GuiControl,, AFKModeEnabled, % (AFKModeEnabled ? 1 : 0)
     GuiControl,, WasteBaitModeEnabled, % (WasteBaitModeEnabled ? 1 : 0)
+    GuiControl,, AutoBuyEnabled, % (AutoBuyEnabled ? 1 : 0)
     GuiControl,, FishColorEdit, % GetHexNoPrefix(FishColor)
     GuiControl,, BlockColorEdit, % GetHexNoPrefix(BlockColor)
     GuiControl,, Variation, %Variation%
@@ -406,6 +408,9 @@ SaveRects:
     wasteBaitVal := WasteBaitModeEnabled ? 1 : 0
     IniWrite, %wasteBaitVal%, rects.ini, General, WasteBaitModeEnabled
 
+    autoBuyVal := AutoBuyEnabled ? 1 : 0
+    IniWrite, %autoBuyVal%, rects.ini, General, AutoBuyEnabled
+
     ShowNotification("Position & Color saved (rects.ini)!")
 return
 
@@ -422,6 +427,7 @@ RestoreDefaults:
     FishrodSlot := DefaultFishrodSlot
     AFKModeEnabled := false
     WasteBaitModeEnabled := false
+    AutoBuyEnabled := false
 
     ; Reset webhook & counters to defaults
     WebhookEnabled := false
@@ -449,6 +455,7 @@ RestoreDefaults:
     IniWrite, %MaxRuns%, rects.ini, General, MaxRuns
     IniWrite, %FishrodSlot%, rects.ini, General, FishrodSlot
     IniWrite, 0, rects.ini, General, WasteBaitModeEnabled
+    IniWrite, 0, rects.ini, General, AutoBuyEnabled
 
     ; Write webhook defaults to INI as well
     IniWrite, %WebhookURL%, rects.ini, Webhook, URL
@@ -482,6 +489,7 @@ RestoreDefaults:
         GuiControl,, MaxRunsEdit, %MaxRuns%
         GuiControl,, AFKModeEnabled, % (AFKModeEnabled ? 1 : 0)
         GuiControl,, WasteBaitModeEnabled, % (WasteBaitModeEnabled ? 1 : 0)
+        GuiControl,, AutoBuyEnabled, % (AutoBuyEnabled ? 1 : 0)
     }
     if (BarRectShow) {
         Gui, BarOverlay:Destroy

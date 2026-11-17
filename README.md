@@ -7,6 +7,7 @@ This macro is a fishing macro for Blox Fruits, it works similar to a auto-clicke
 ## Features
 
 - [x] Functional fishing macro
+- [x] Optional automatic bait buying when bait runs out (enable in Edit > General)
 - [x] Discord WebHooks logging
 - [x] AFK Mode after the macro finishes
 - [x] Chests (CURRENTLY IN DEVELOPMENT)

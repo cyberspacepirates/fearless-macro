@@ -102,3 +102,4 @@ WebhookMinIntervalMs := 15000 ; 15s min between webhooks
 
 global AFKModeEnabled := false
 global WasteBaitModeEnabled := false
+global AutoBuyEnabled := false
