@@ -23,6 +23,17 @@ F5:: StartMacro()
 F6:: StopMacro(true)
 F3:: ToggleAlignMode()
 
+
+; perms a shuffle so speed up Fishing
+Shuffle()
+{
+    Sleep, 300
+    Send, %FishrodSlot%
+    ; prints the FishrodSlot key to the console for debugging
+    if (DebugMode)
+        ShowNotification("Fish rod select: " . FishrodSlot) 
+}
+
 PerformAlign()
 {
     global CurrentStatus
@@ -130,9 +141,7 @@ Step1_WaitForGreen()
         firstRun := true
     }
     if (firstRun) {
-        Send, %FishrodSlot%
-        Sleep, 300
-        Send, %FishrodSlot%
+        Shuffle()
         firstRun := false
     }
     CurrentStatus := "Step 1: Waiting for green in green rect..."
@@ -417,7 +426,7 @@ Step4_Wait()
             Send {LButton Up}
             Holding := false
         }
-        Send, %FishrodSlot%
+        Shuffle()
         Sleep, 20    ; short pause to ensure keystroke registers cleanly
         sentAt1 := true
         if (DebugMode)
@@ -430,7 +439,7 @@ Step4_Wait()
             Send {LButton Up}
             Holding := false
         }
-        Send, %FishrodSlot%
+        Shuffle()
         Sleep, 20
         sentAt16 := true
         if (DebugMode)

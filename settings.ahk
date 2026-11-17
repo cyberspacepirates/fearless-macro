@@ -95,6 +95,8 @@ if FileExist("rects.ini") {
     }
     IniRead, afkVal, rects.ini, General, AFKModeEnabled, 0
     AFKModeEnabled := (afkVal = 1 ? true : false)
+    IniRead, wasteBaitVal, rects.ini, General, WasteBaitModeEnabled, 0
+    WasteBaitModeEnabled := (wasteBaitVal = 1 ? true : false)
     IniRead, tmp, rects.ini, General, FishrodSlot
     if (tmp != "") {
         FishrodSlot := tmp + 0

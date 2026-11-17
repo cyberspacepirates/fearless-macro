@@ -88,6 +88,7 @@ OpenEditGui:
     Gui, EditGui:Add, DropDownList, x200 y102 w120 h100 vFishrodSlotEdit gFishrodSlotChanged, 1|2|3|4|5|6|7|8|9
     Gui, EditGui:Add, Text, x330 y105 w160 h20 vFishrodSlotLabel, Selected: %FishrodSlot%
     Gui, EditGui:Add, Checkbox, x24 y135 w400 h20 vAFKModeEnabled gToggleAFKMode, Enable AFK Mode after finishing script
+    Gui, EditGui:Add, Checkbox, x24 y165 w400 h20 vWasteBaitModeEnabled, Enable Waste Bait Mode
 
     ; -------- Tab: Donate --------
     Gui, EditGui:Tab, Donate
@@ -114,6 +115,7 @@ OpenEditGui:
     GuiControl,, FishrodSlotEdit, %FishrodSlot%
     GuiControl,, FishrodSlotLabel, Selected: %FishrodSlot%
     GuiControl,, AFKModeEnabled, % (AFKModeEnabled ? 1 : 0)
+    GuiControl,, WasteBaitModeEnabled, % (WasteBaitModeEnabled ? 1 : 0)
     GuiControl,, FishColorEdit, % GetHexNoPrefix(FishColor)
     GuiControl,, BlockColorEdit, % GetHexNoPrefix(BlockColor)
     GuiControl,, Variation, %Variation%
@@ -401,6 +403,9 @@ SaveRects:
     afkVal := AFKModeEnabled ? 1 : 0
     IniWrite, %afkVal%, rects.ini, General, AFKModeEnabled
 
+    wasteBaitVal := WasteBaitModeEnabled ? 1 : 0
+    IniWrite, %wasteBaitVal%, rects.ini, General, WasteBaitModeEnabled
+
     ShowNotification("Position & Color saved (rects.ini)!")
 return
 
@@ -416,6 +421,7 @@ RestoreDefaults:
     MovementRectH := DefaultMovementRectH
     FishrodSlot := DefaultFishrodSlot
     AFKModeEnabled := false
+    WasteBaitModeEnabled := false
 
     ; Reset webhook & counters to defaults
     WebhookEnabled := false
@@ -442,6 +448,7 @@ RestoreDefaults:
     IniWrite, %Variation%, rects.ini, Colors, Variation
     IniWrite, %MaxRuns%, rects.ini, General, MaxRuns
     IniWrite, %FishrodSlot%, rects.ini, General, FishrodSlot
+    IniWrite, 0, rects.ini, General, WasteBaitModeEnabled
 
     ; Write webhook defaults to INI as well
     IniWrite, %WebhookURL%, rects.ini, Webhook, URL
@@ -474,6 +481,7 @@ RestoreDefaults:
         GuiControl,, WebhookEnabled, % (WebhookEnabled ? 1 : 0)
         GuiControl,, MaxRunsEdit, %MaxRuns%
         GuiControl,, AFKModeEnabled, % (AFKModeEnabled ? 1 : 0)
+        GuiControl,, WasteBaitModeEnabled, % (WasteBaitModeEnabled ? 1 : 0)
     }
     if (BarRectShow) {
         Gui, BarOverlay:Destroy
