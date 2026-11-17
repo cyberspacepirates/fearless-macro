@@ -450,7 +450,7 @@ Step4_Wait()
             Send {LButton Up}
             Holding := false
         }
-        Shuffle()
+        ; Shuffle()
         Sleep, 20
         sentAt16 := true
         if (DebugMode)
