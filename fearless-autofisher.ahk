@@ -27,8 +27,10 @@ F3:: ToggleAlignMode()
 ; perms a shuffle so speed up Fishing
 Shuffle()
 {
-    Sleep, 300
-    Send, %FishrodSlot%
+    sleep, 300
+    send, 1
+    sleep, 500
+    send, 5
     ; prints the FishrodSlot key to the console for debugging
     if (DebugMode)
         ShowNotification("Fish rod select: " . FishrodSlot) 
@@ -211,7 +213,7 @@ Step1_WaitForGreen()
 Step2_WaitForMovement()
 {
     global CurrentStatus, MovementRectX, MovementRectY, MovementRectW, MovementRectH
-    global DebugMode, CurrentStep, Step3_EntryTime, Holding
+    global DebugMode, CurrentStep, Step3_EntryTime, Holding, WasteBaitModeEnabled
 
     static entryTime := 0
 
@@ -242,11 +244,20 @@ Step2_WaitForMovement()
         }
         Sleep, 50
         Click, %FoundX%, %FoundY%
-        CurrentStep := 3
-        Step3_EntryTime := A_TickCount
+        if (WasteBaitModeEnabled) {
+            CurrentStep := 1
+            Step3_EntryTime := 0
+        } else {
+            CurrentStep := 3
+            Step3_EntryTime := A_TickCount
+        }
         entryTime := 0            ; reset for next time we come here later
-        if (DebugMode)
-            ShowNotification("Step 2 -> 3: Exclamation detected! (Step3 timer started)")
+        if (DebugMode) {
+            if (WasteBaitModeEnabled)
+                ShowNotification("Step 2 -> 1: Exclamation detected! (skipping fish tracking)")
+            else
+                ShowNotification("Step 2 -> 3: Exclamation detected! (Step3 timer started)")
+        }
         return
     }
 
